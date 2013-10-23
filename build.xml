@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project name="superwas" default="dist" basedir=".">
+
+  <property file="build.properties"/>
+
+  <property environment="env"/>
+
+  <property name="dist.home"     value="${env.HOME}/dist"/>
+
+  <target name="all" depends="clean, prepare, dist" description="Clean dist directories, then rebuild"/>
+
+  <target name="clean" description="Delete old build and dist directories">
+    <delete dir="${dist.home}"/>
+  </target>
+
+  <target name="prepare">
+    <!-- Create build directories as needed -->
+    <mkdir dir="${dist.home}"/>
+  </target>
+
+  <target name="dist" depends="prepare" description="Create binary distribution">
+
+    <tar destfile="${dist.home}/${ant.project.name}-${build.version}.tar.gz" basedir="${basedir}" excludes="**/*.class, *.xml" compression="gzip">
+		<!--<tarfileset dir="${env.WAS_HOME}/deploytool/itp/plugins/org.apache.jakarta_log4j_1.2.8.v200607172048" includes="lib/log4j-1.2.8.jar"/>-->
+	</tar>
+
+  </target>
+
+</project>

@@ -1,0 +1,114 @@
+#!/usr/bin/python
+
+# This file is part of Superwas.
+# 
+# Superwas is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Superwas is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Superwas.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Nagios monitoring script
+#
+# Read output from superwas from fifo.
+#
+# Author: Andre van Dijk (SuperClass IT)
+# Date: $Date: 2013-01-04 16:04:36 +0100 (vr, 04 jan 2013) $
+# $Id: check_was 424 2013-01-04 15:04:36Z andre $
+
+import os, sys, getopt
+
+version="0.1"
+verbose=0
+
+def debug(message):
+	if verbose>1: print message
+
+def print_usage():
+	print "check_was [-V] [-h] [-v[-v[-v]]] [-f fifo]"
+
+def print_help():
+	print_revision()
+	print_usage()
+	print "-V, --version	Print version and exit"
+	print "-h, --help	Print help message and exit"
+	print "-v, --verbose	Increase verbosity, may be specified multiple times"
+	print "-f, --fifo	Specify fifo to read WAS status message from"
+
+def print_revision():
+	print "check_was version %s" % version
+
+def main():
+	global verbose
+	fifo=""
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "Vhvf:", ["version", "help", "verbose", "fifo="])
+	except getopt.GetoptError, err:
+		print "Invalid syntax : %s" % str(err)
+		print_usage()
+		return 0
+
+	for o, a in opts:
+		if o in ("-V", "--version"):
+			print_revision()
+			return 0
+		elif o in ("-h", "--help"):
+			print_help()
+			return 0
+		elif o in ("-v", "--verbose"):
+			verbose+=1
+		elif o in ("-f", "--fifo"):
+			if a!="":
+				fifo=a
+			else:
+				print_usage()
+		else:
+			print_usage()
+			return 0
+	if fifo=="":
+		print_usage()
+		return 3
+
+	try:
+		try:
+			debug("Opening fifo : %s for reading" % fifo)
+			f=os.open(fifo,os.O_RDONLY)
+		except OSError:
+			print "Fifo : %s is not readable" % fifo
+			return 3
+		s=""
+		code=-1
+		while 1:
+			b=os.read(f,1)
+			if b=="\n": # First line indicates the return code
+				if code==-1:
+					code=s
+					if not code.isdigit():
+						print "Invalid return code received"
+						code=3
+				else:
+					print s
+				s=""
+			elif b=="\004": # EOT indicates the end of the message
+				debug("Received EOT closing fifo")
+				os.close(f)
+				break
+			else:
+				s+=b
+		if code==-1:code=3
+		debug("Returning : %s" % code)
+		return int(code)
+	except:
+		print "Error reading message"
+		return 3
+
+if __name__ == "__main__":
+    sys.exit(main())
