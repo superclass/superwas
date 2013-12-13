@@ -145,7 +145,7 @@ class DataSourceUsageStat(NagiosStat):
 		for stat in stats:
 			pu=stat.getStatistic('PercentUsed')
 			if pu is not None: 
-				self.setPercentUsed(pu.getMean())
+				self.setPercentUsed(pu.getCurrent())
 
 	def getStatus(self):
 		status=NagiosStat.UNKNOWN
