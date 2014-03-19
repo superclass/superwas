@@ -35,4 +35,4 @@ wsadmin.sh \
 -javaoption -DSUPERWAS_TMP=$SUPERWAS_TMP \
 -wsadmin_classpath $CLASSPATH  \
 -f $SUPERWAS_HOME/superwas.py \
-$*
+"$@"

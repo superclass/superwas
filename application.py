@@ -666,11 +666,11 @@ class Application(WASConfig):
 				if self.getParent().getConfigType() == "ServerCluster":
 					for s in self.getParent().getMembers():
 						appMan = s.getAppManagerMbean()
-						AdminControl.invoke( appMan, "startApplication", self.getName() , "java.lang.String" )
+						AdminControl.invoke( appMan, "startApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
 						logger.info( "Application %s start initiated on : %s" % (self.getName(), s.getName()) )
 				else:
 					appMan = self.getParent().getAppManagerMbean()
-					AdminControl.invoke( appMan, "startApplication", self.getName() , "java.lang.String" )
+					AdminControl.invoke( appMan, "startApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
 					logger.info( "Application %s start initiated on : %s" % (self.getName(), self.getParent().getName()) )
 		else:
 			logger.info( "%s %s is (partially) stopped, Application %s cannot be started"  % (self.getParent().getConfigType(), self.getParent().getName(), self.getName()))
@@ -690,11 +690,11 @@ class Application(WASConfig):
 				if self.getParent().getConfigType() == "ServerCluster":
 					for s in self.getParent().getMembers():
 						appMan=s.getAppManagerMbean()
-						AdminControl.invoke( appMan, "stopApplication", self.getName(), "java.lang.String" )
+						AdminControl.invoke( appMan, "stopApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
 						logger.info( "Application : %s stop initiated on : %s" % (self.getName(), s.getName() ))
 				else:
 					appMan=self.getParent().getAppManagerMbean()
-					AdminControl.invoke( appMan, "stopApplication", self.getName(), "java.lang.String" )
+					AdminControl.invoke( appMan, "stopApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
 					logger.info( "Application : %s stop initiated on : %s" % (self.getName(), self.getParent().getName() ))
 
 		else:
