@@ -503,7 +503,8 @@ class Server(WASConfig, ManagementScopedWASConfig):
 		# Session manager settings
 		self.__sessionMan={
 			'sessionTimeout':30,
-			'enableSecurityIntegration':"true"
+			'enableSecurityIntegration':"true",
+			'enableCookies':"true"
 		}
 		# Cookie  settings
 		self.__cookie={
@@ -831,6 +832,13 @@ class Server(WASConfig, ManagementScopedWASConfig):
 
 	def getEnableSecurityIntegration(self):
 		return self.__sessionMan['enableSecurityIntegration']
+
+	def setEnableCookies(self, enableCookies):
+		if enableCookies is not None: self.__sessionMan['enableCookies']=enableCookies
+		self.logValue()
+
+	def getEnableCookies(self):
+		return self.__sessionMan['enableCookies']
 
 	def getSessionTimeout(self):
 		return self.__sessionMan['sessionTimeout']
@@ -1500,6 +1508,7 @@ class Server(WASConfig, ManagementScopedWASConfig):
 		# Modify Session Manager
 		smID=AdminConfig.list('SessionManager', wcID)
 		AdminConfig.modify(smID, [["enableSecurityIntegration", self.getEnableSecurityIntegration()]])
+		AdminConfig.modify(smID, [["enableCookies", self.getCookies()]])
 		tpID=AdminConfig.list('TuningParams', smID)
 		AdminConfig.modify(tpID, [['invalidationTimeout', self.getSessionTimeout()]])
 		logger.info("Succesfully set the session timeout on server %s to : %s" % (self.getName(), self.getSessionTimeout()))
