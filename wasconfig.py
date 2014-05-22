@@ -143,21 +143,27 @@ class WASConfig:
 		docstring="##############################################################################\n"
 		docstring+="# %s\n#\n%s\n#\n" % (self.__class__.__name__,self.__doc__)
 		docstring+="\n# Mandatory Attributes\n#\n"
-		for a in self.man_attributes.keys():
+		for a in self.getManAttributes():
 			cmd='h=self.set%s.__doc__' % (a[0].upper()+a[1:])
 			exec cmd
 			if h is None: h=""
 			docstring+="# %s:\n%s\n" % (a,h)
-			docstring+="%s.0.%s=%s\n\n" % (self.__class__.__name__.lower(),a,self.man_attributes[a])
+			v=""
+			cmd='v=self.get%s()' % (a[0].upper()+a[1:])
+			exec cmd
+			docstring+="%s.0.%s=%s\n\n" % (self.__class__.__name__.lower(),a,v)
 
 		docstring+="\n# Optional Attributes\n#\n"
-		for a in self.opt_attributes.keys():
+		for a in self.getOptAttributes():
 			cmd='h=self.set%s.__doc__' % (a[0].upper()+a[1:])
 			exec cmd
 			if h is None: h=""
 			docstring+="# %s:\n%s\n" % (a,h)
-			docstring+="%s.0.%s=%s\n\n" % (self.__class__.__name__.lower(),a,self.opt_attributes[a])
-		for a in self.ref_attributes.keys():
+			v=""
+			cmd='v=self.get%s()' % (a[0].upper()+a[1:])
+			exec cmd
+			docstring+="%s.0.%s=%s\n\n" % (self.__class__.__name__.lower(),a,v)
+		for a in self.getRefAttributes():
 			cmd='h=self.set%s.__doc__' % (a[0].upper()+a[1:])
 			exec cmd
 			if h is None: h=""
