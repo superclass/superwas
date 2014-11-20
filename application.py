@@ -16,8 +16,8 @@
 # Application Classes
 # 
 # Author: Andre van Dijk (SuperClass IT)
-# Date: $Date: 2013-08-28 10:24:55 +0200 (wo, 28 aug 2013) $
-# $Id: application.py 465 2013-08-28 08:24:55Z andre $
+# Date: $Date: 2013-01-04 16:04:36 +0100 (vr, 04 jan 2013) $
+# $Id: application.py 424 2013-01-04 15:04:36Z andre $
 class TaskInfoData:
 	def __init__(self, taskInfo):
 		self.__taskInfo=taskInfo
@@ -44,7 +44,7 @@ class WebServerTarget(WASConfig):
 		else:
 			raise Exception("Invalid WebServer")
 		self.logValue()
-
+		
 	def getWebServer(self):
 		return self.ref_attributes['webServer']
 
@@ -274,7 +274,7 @@ class BeanRef(BaseResourceRef):
 			if refmodule == self.getModule() and refEjb == self.getEjb() and refUri==self.getUri():
 				reftoref = [refModule , refEjb , refUri , self.getJndi()]
 				logger.debug("Bind JNDI rule for non Msg EJB : %s" %  reftoref)
-				mapping.append(reftoref)
+				mapping.append(reftoref)	
 		return mapping
 
 class CmpRef(BaseResourceRef):
@@ -412,7 +412,8 @@ class MesRef(BaseResourceRef):
 		self.man_attributes={
 			'module':"",
 			'uri':"",
-			'target':""
+			'target':"",
+			'jndi':""
 		}
 		self.opt_attributes={
 			'ejb':""
@@ -433,7 +434,7 @@ class MesRef(BaseResourceRef):
 			refModule=taskInfo.getKey("module")
 			refEjb=taskInfo.getKey("ejb")
 			refUri=taskInfo.getKey("uri")
-			refMesDest=taskInfoData['message destination object']
+			refMesDest=taskInfo.getKey('message destination object')
 
 			if refModule==self.getModule() and refEjb==self.getEjb() and refUri==self.getUri() and refMesDest==self.getTarget():
 				reftoref=[ refModule , refEjb , refUri , refMesDest, self.getJndi() ]
@@ -474,8 +475,7 @@ class Application(WASConfig):
 			'WARClassLoaderPolicy':"MULTIPLE",
 			'libraryName':"",
 			'dbType':"DB2UDB_V91",
-			'dbSchema':"",
-			'startupOrder':1
+			'dbSchema':""
 		}
 		self.__webServers=[]
 		self.__webModules=[]
@@ -596,14 +596,6 @@ class Application(WASConfig):
 	def getDbType(self):
 		return self.opt_attributes['dbType']
 
-	def setStartupOrder(self, startupOrder):
-		if startupOrder is not None:
-			self.opt_attributes['startupOrder']=startupOrder
-		self.logValue()
-
-	def getStartupOrder(self):
-		return self.opt_attributes['startupOrder']
-
 	def getTaskInfoData(self, taskName):
 		"""
 		This function makes a collection of value dictionaries from the
@@ -613,6 +605,7 @@ class Application(WASConfig):
 		"""
 		rawString = AdminApp.taskInfo(self.getEarFile(),taskName).split(Util.getNL())
 		#rawString = AdminApp.taskInfo(self.getEarFile(),taskName).split()
+		logger.debug(rawString)
 		aDict={}
 		taskInfoList=[]
 		for aLine in rawString:
@@ -623,13 +616,20 @@ class Application(WASConfig):
 			else:
 				keyValuePair = aLine.split(":")
 				if len( keyValuePair ) > 1:
-					aDict[keyValuePair[0].strip().lower()] = keyValuePair[1].strip()
+					i=0
+					val=""
+					for e in keyValuePair[1:]:
+						if i>0:
+							val=val+":"
+						val=val+e.strip()
+						i=i+1
+					aDict[keyValuePair[0].strip().lower()] = val
 		return taskInfoList
 
 	def isRunning(self):
 		"""
 		This function checks if the application is started.
-
+			
 		return True(1) if started otherwise False(0)
 
 		If the cluster the application is deployed to does not
@@ -666,11 +666,11 @@ class Application(WASConfig):
 				if self.getParent().getConfigType() == "ServerCluster":
 					for s in self.getParent().getMembers():
 						appMan = s.getAppManagerMbean()
-						AdminControl.invoke( appMan, "startApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
+						AdminControl.invoke( appMan, "startApplication", self.getName() , "java.lang.String" )
 						logger.info( "Application %s start initiated on : %s" % (self.getName(), s.getName()) )
 				else:
 					appMan = self.getParent().getAppManagerMbean()
-					AdminControl.invoke( appMan, "startApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
+					AdminControl.invoke( appMan, "startApplication", self.getName() , "java.lang.String" )
 					logger.info( "Application %s start initiated on : %s" % (self.getName(), self.getParent().getName()) )
 		else:
 			logger.info( "%s %s is (partially) stopped, Application %s cannot be started"  % (self.getParent().getConfigType(), self.getParent().getName(), self.getName()))
@@ -690,11 +690,11 @@ class Application(WASConfig):
 				if self.getParent().getConfigType() == "ServerCluster":
 					for s in self.getParent().getMembers():
 						appMan=s.getAppManagerMbean()
-						AdminControl.invoke( appMan, "stopApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
+						AdminControl.invoke( appMan, "stopApplication", self.getName(), "java.lang.String" )
 						logger.info( "Application : %s stop initiated on : %s" % (self.getName(), s.getName() ))
 				else:
 					appMan=self.getParent().getAppManagerMbean()
-					AdminControl.invoke( appMan, "stopApplication", "[\"" + self.getName() + "\"]", "java.lang.String" )
+					AdminControl.invoke( appMan, "stopApplication", self.getName(), "java.lang.String" )
 					logger.info( "Application : %s stop initiated on : %s" % (self.getName(), self.getParent().getName() ))
 
 		else:
@@ -723,7 +723,7 @@ class Application(WASConfig):
 			"-deployejb.dbtype" : self.getDbType() 
 		}
 		if self.getDbSchema()!="": attributes["-deployejb.dbschema"]=self.getDbSchema()
-
+		
 		if self.getParent().getConfigType() == 'ServerCluster':
 			attributes["-cluster"] = self.getParent().getName()
 			attributes["-target"] = "WebSphere:cell=%s,cluster=%s" % (self.getCell().getName(), self.getParent().getName())
@@ -784,8 +784,6 @@ class Application(WASConfig):
 		logger.info("setting classloader mode for: %s to : %s" % (self.getName(), self.getClassLoaderMode()))
 		AdminConfig.modify(classloader, [["mode", self.getClassLoaderMode()]])
 		AdminConfig.modify(deployedObject, [["warClassLoaderPolicy", self.getWARClassLoaderPolicy()]])
-		logger.info("setting startup weight for: %s to : %s" % (self.getName(), self.getStartupOrder()))
-		AdminConfig.modify(deployedObject, [["startingWeight", self.getStartupOrder()]])
 
 		modules=AdminConfig.showAttribute(deployedObject, 'modules')[1:-1].split()
 		for m in modules:
