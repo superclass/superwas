@@ -131,6 +131,7 @@ class Config:
 			"CmpRef":[],
 			"ResRef":[],
 			"EjbRef":[],
+			"EjbEnv":[],
 			"ResEnv":[],
 			"MesBind":[],
 			"MesRef":[],

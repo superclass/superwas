@@ -355,10 +355,8 @@ class EjbRef(BaseReferenceResourceRef):
 class ResEnv(BaseReferenceResourceRef):
 	def __init__(self, parent=None):
 		BaseReferenceResourceRef.__init__(self, parent)
-
 	def getOption(self):
 		return "-MapResEnvRefToRes"
-
 	def getMapping(self):
 		mapping=[]
 		for taskInfo in self.getParent().getTaskInfoData("MapResEnvRefToRes"):
@@ -442,6 +440,63 @@ class MesRef(BaseResourceRef):
 				mapping.append(reftoref)
 		return mapping
 
+class EjbEnv(BaseResourceRef):
+	def __init__(self, parent=None):
+		BaseResourceRef.__init__(self, parent)
+		# Remove jndi attribute and replace with name
+		del self.man_attributes['jndi']
+		self.man_attributes['name']=''
+		self.man_attributes['javaType']=''
+		self.opt_attributes['description']=''
+		self.opt_attributes['value']=''
+		
+	def getOption(self):
+		return "-MapEnvEntryForEJBMod"
+
+	def getName(self):
+		return self.man_attributes['name']
+	def setName(self, name):
+		if name is not None:
+			self.man_attributes['name']=name
+		self.logValue()
+
+	def getJavaType(self):
+		return self.man_attributes['javaType']
+	def setJavaType(self, javaType):
+		if javaType is not None:
+			self.man_attributes['javaType']=javaType
+		self.logValue()
+
+	def getDescription(self):
+		return self.opt_attributes['description']
+	def setDescription(self, description):
+		if description is not None:
+			self.opt_attributes['description']=description
+		self.logValue()
+
+	def getValue(self):
+		return self.opt_attributes['value']
+	def setValue(self, value):
+		if value is not None:
+			self.opt_attributes['value']=value
+		self.logValue()
+
+	def getMapping(self):
+		mapping=[]
+		for taskInfo in self.getParent().getTaskInfoData("MapEnvEntryForEJBMod"):
+			refModule=taskInfo.getKey("ejb module")
+			refEjb=taskInfo.getKey("ejb")
+			refUri=taskInfo.getKey("uri")
+			refName=taskInfo.getKey("name")
+			refType = taskInfo.getKey("type")
+			refDescription = taskInfo.getKey("description")
+			refValue = taskInfo.getKey("value")
+			if refModule==self.getModule() and refName==self.getName() and refUri==self.getUri() and refType==self.getJavaType():
+				reftoref = [ refModule, refEjb, refUri, refName, refType, self.getDescription(), self.getValue() ]
+				logger.debug( "MapEnvEntryForEJBMod rule : %s" %  reftoref )
+				mapping.append(reftoref)
+		return mapping
+
 class Application(WASConfig):
 	"""
 	Class to represent a application (EAR).
@@ -488,6 +543,7 @@ class Application(WASConfig):
 		self.__mesbind=[]
 		self.__mesref=[]
 		self.__cmpref=[]
+		self.__ejbenv=[]
 
 	def addChild(self, child):
 		WASConfig.addChild(self, child)
@@ -511,6 +567,8 @@ class Application(WASConfig):
 			self.__mesref.append(child)
 		if isinstance(child, CmpRef):
 			self.__cmpref.append(child)
+		if isinstance(child, EjbEnv):
+			self.__ejbenv.append(child)
 
 	def setEarFile(self, earFile):
 		if earFile is not None:
@@ -761,7 +819,7 @@ class Application(WASConfig):
 			options.append("-CtxRootForWebMod")
 			options.append(ctxrootattr)
 
-		for i in [self.__beanref, self.__resref, self.__ejbref,self.__resenv,self.__mesbind,self.__mesref,self.__cmpref,self.__roles]:
+		for i in [self.__beanref, self.__resref, self.__ejbref,self.__resenv,self.__mesbind,self.__mesref,self.__cmpref,self.__ejbenv,self.__roles]:
 			mapping=[]
 			for j in i:
 				mapping+=j.getMapping()
