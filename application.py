@@ -447,8 +447,7 @@ class EjbEnv(BaseResourceRef):
 		del self.man_attributes['jndi']
 		self.man_attributes['name']=''
 		self.man_attributes['javaType']=''
-		self.opt_attributes['description']=''
-		self.opt_attributes['value']=''
+		self.man_attributes['value']=''
 		
 	def getOption(self):
 		return "-MapEnvEntryForEJBMod"
@@ -467,18 +466,11 @@ class EjbEnv(BaseResourceRef):
 			self.man_attributes['javaType']=javaType
 		self.logValue()
 
-	def getDescription(self):
-		return self.opt_attributes['description']
-	def setDescription(self, description):
-		if description is not None:
-			self.opt_attributes['description']=description
-		self.logValue()
-
 	def getValue(self):
-		return self.opt_attributes['value']
+		return self.man_attributes['value']
 	def setValue(self, value):
 		if value is not None:
-			self.opt_attributes['value']=value
+			self.man_attributes['value']=value
 		self.logValue()
 
 	def getMapping(self):
@@ -492,7 +484,7 @@ class EjbEnv(BaseResourceRef):
 			refDescription = taskInfo.getKey("description")
 			refValue = taskInfo.getKey("value")
 			if refModule==self.getModule() and refName==self.getName() and refUri==self.getUri() and refType==self.getJavaType():
-				reftoref = [ refModule, refEjb, refUri, refName, refType, self.getDescription(), self.getValue() ]
+				reftoref = [ refModule, refUri, refEjb, refName, refType, refDescription, self.getValue() ]
 				logger.debug( "MapEnvEntryForEJBMod rule : %s" %  reftoref )
 				mapping.append(reftoref)
 		return mapping
