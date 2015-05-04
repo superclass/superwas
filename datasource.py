@@ -223,7 +223,9 @@ class DataSource(WASConfig):
 			'usageCriticalThreshold':-1,
 			'usageWarningThreshold':-1,
 			'waitTimeCriticalThreshold':-1,
-			'waitTimeWarningThreshold':-1
+			'waitTimeWarningThreshold':-1,
+                        'useTimeCriticalThreshold':-1,
+                        'useTimeWarningThreshold':-1,
 		}
 
 		self.__cmp='false'
@@ -349,6 +351,11 @@ class DataSource(WASConfig):
 							dataSourceStat.setCriticalThreshold(self.getWaitTimeCriticalThreshold())
 							dataSourceStat.setWarningThreshold(self.getWaitTimeCriticalThreshold())
 							dataSourceStat.setStatus([i])
+                                                        stats.append(dataSourceStat)
+							dataSourceStat=DataSourceUsetimeStat()
+                                                        dataSourceStat.setCriticalThreshold(self.getUseTimeCriticalThreshold())
+                                                        dataSourceStat.setWarningThreshold(self.getUseTimeCriticalThreshold())
+							dataSourceStat.setStatus([i])
 							stats.append(dataSourceStat)
 		return stats
 		#WASConfig.getStatistics(self)
@@ -380,6 +387,21 @@ class DataSource(WASConfig):
 
 	def getWaitTimeWarningThreshold(self):
 		return self.__thresholds['waitTimeWarningThreshold']
+
+        def setUseTimeCriticalThreshold(self, useTimeCriticalThreshold):
+                if useTimeCriticalThreshold is not None: self.__thresholds['useTimeCriticalThreshold']=useTimeCriticalThreshold
+                self.logValue()
+
+        def getUseTimeCriticalThreshold(self):
+                return self.__thresholds['useTimeCriticalThreshold']
+
+        def setUseTimeWarningThreshold(self, useTimeWarningThreshold):
+                if useTimeWarningThreshold is not None: self.__thresholds['useTimeWarningThreshold']=useTimeWarningThreshold
+                self.logValue()
+
+        def getUseTimeWarningThreshold(self):
+                return self.__thresholds['useTimeWarningThreshold']
+
 
 	def getNagiosStatus(self):
 		WASConfig.getNagiosStatus(self)

@@ -197,6 +197,38 @@ class DataSourceWaitStat(NagiosStat):
 				message="OK DataSource wait time %d/%d" % (self.waitTime,self.warningThreshold)
 		return NagiosStatus(status, message, "DataSourceWait=%dms;%d;%d;;;" % (self.waitTime,self.warningThreshold,self.criticalThreshold))
 
+class DataSourceUsetimeStat(NagiosStat):
+        def __init__(self):
+                NagiosStat.__init__(self)
+                self.useTime=-1
+
+        def setUseTime(self, useTime):
+                self.useTime=float(useTime)
+
+        def setStatus(self, stats):
+                for stat in stats:
+                        pu=stat.getStatistic('UseTime')
+                        if pu is not None:
+                                self.setUseTime(pu.getMean())
+
+        def getStatus(self):
+                status=NagiosStat.UNKNOWN
+                message="DataSource connection pool use time unknown"
+                if self.criticalThreshold<0 or self.warningThreshold<0:
+                        logger.debug("DataSource use time stats off, returning OK")
+                        return NagiosStatus(self.OK, "DataSource use time thresholds unset", "")
+                if self.useTime!=-1:
+                        if self.useTime >=self.criticalThreshold:
+                                status=NagiosStat.CRITICAL
+                                message="CRITICAL DataSource use time %d/%d" % (self.useTime,self.criticalThreshold)
+                        elif self.useTime >=self.warningThreshold:
+                                status=NagiosStat.WARNING
+                                message="WARNING DataSource use time %d/%d" % (self.useTime,self.warningThreshold)
+                        else:
+                                status=NagiosStat.OK
+                                message="OK DataSource use time %d/%d" % (self.useTime,self.warningThreshold)
+                return NagiosStatus(status, message, "DataSourceUsetime=%dms;%d;%d;;;" % (self.useTime,self.warningThreshold,self.criticalThreshold))
+
 class WebContainerConcurrentHungThreadCount(NagiosStat):
 	def __init__(self):
 		NagiosStat.__init__(self)
