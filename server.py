@@ -1508,7 +1508,7 @@ class Server(WASConfig, ManagementScopedWASConfig):
 		# Modify Session Manager
 		smID=AdminConfig.list('SessionManager', wcID)
 		AdminConfig.modify(smID, [["enableSecurityIntegration", self.getEnableSecurityIntegration()]])
-		AdminConfig.modify(smID, [["enableCookies", self.getCookies()]])
+		AdminConfig.modify(smID, [["enableCookies", self.getEnableCookies()]])
 		tpID=AdminConfig.list('TuningParams', smID)
 		AdminConfig.modify(tpID, [['invalidationTimeout', self.getSessionTimeout()]])
 		logger.info("Succesfully set the session timeout on server %s to : %s" % (self.getName(), self.getSessionTimeout()))
