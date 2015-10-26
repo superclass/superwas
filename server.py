@@ -390,7 +390,7 @@ class Server(WASConfig, ManagementScopedWASConfig):
 		"""
 		WASConfig.__init__(self, parent)
 		ManagementScopedWASConfig.__init__(self)
-		self.ref_attributes={'node':None}
+		self.ref_attributes['node']=None
 		self.validParents=["Node", "ServerCluster"]
 		self.man_attributes={
 			'name':""
@@ -399,7 +399,6 @@ class Server(WASConfig, ManagementScopedWASConfig):
 			'noSecurePort':"false",
 			'securePortSSLConfig':"",
 			'dataReplicationDomain':"",
-			'coreGroup':"",
 			'weight':2,
 			'vhost':None,
 			'clone':"",
@@ -1111,13 +1110,6 @@ class Server(WASConfig, ManagementScopedWASConfig):
 	def getHttpsHostNameIncludeList(self):
 		return self.__httpsAccessList['hostNameIncludeList']
 
-	def setCoreGroup(self, coreGroup):
-		if coreGroup is not None:
-			self.opt_attributes['coreGroup']=coreGroup
-		self.logValue()
-	def getCoreGroup(self):
-		return self.opt_attributes['coreGroup']
-
 	def __modifyLogFiles(self):
 		"""
 		This function modifies the WAS logging settings (stream parameters).
@@ -1556,10 +1548,6 @@ class Server(WASConfig, ManagementScopedWASConfig):
 		if ( (pmiServiceRoot == "") ) : raise Exception("pmiServiceRoot is empty, before calling AdminConfig.modify.")
 		AdminConfig.modify( pmiServiceRoot, Util.dictToList(self.__pmi) )
 
-		if self.getCoreGroup()!="" and self.getCoreGroup()!="DefaultCoreGroup":	
-			AdminTask.moveServerToCoreGroup('[-source %s -target %s -nodeName %s -serverName %s]' % ("DefaultCoreGroup",self.getCoreGroup(),self.getNode().getName(),self.getName()))
-			logger.info("Succesfully moved server to coregroup : %s" % self.getCoreGroup())
-
 	def clone(self):
 		"""
 		Return a clone of the server object. This method is
@@ -1605,7 +1593,6 @@ class Server(WASConfig, ManagementScopedWASConfig):
 		clone.setEnableSecurityIntegration(self.setEnableSecurityIntegration())
 		clone.setPmiEnabled(self.setPmiEnabled())
 		clone.setPmiInitialSpecLevel(self.setPmiInitialSpecLevel())
-		clone.setCoreGroup(self.getCoreGroup())
 
 		for i in self.getChildren():
 			n=i.clone()

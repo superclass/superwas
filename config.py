@@ -49,7 +49,6 @@ execfile('%s/objectcache.py' % scriptdir)
 execfile('%s/replication.py' % scriptdir)
 execfile('%s/dynamicsslconfigselection.py' % scriptdir)
 execfile('%s/sslconfig.py' % scriptdir)
-execfile('%s/coregroup.py' % scriptdir)
 
 class Config:
 	"""
@@ -145,7 +144,6 @@ class Config:
 			"SSLConfig":[],
 			"WebContainerProperty":[],
 			"PMIModule":[],
-			"CoreGroup":[],
 		}
 
 	def setPropFile(self, propfile):
@@ -212,7 +210,7 @@ class Config:
 		if self.__wasObjects.has_key(name):
 			return self.__wasObjects[name]
 	def setWasObjects(self, name, objectList):
-		self.__wasObjects[name]=self.__wasObjects[name]+objectList
+		self.__wasObjects[name]=objectList
 
 	def validate(self):
 		for i in self.getOrderedWasConfigTypes():
@@ -227,7 +225,6 @@ class Config:
 		logger.info(" -- Validating property file")
 		self.setWasObjects("Cell",[Cell()])
 		self.setWasObjects("Node",self.__getNodes())
-		self.setWasObjects("CoreGroup",self.__getDefaultCoreGroup())
 		# Property file with defaults
 		self.__defaults=jProperties()
 		self.__predefs=jProperties()
@@ -347,19 +344,6 @@ class Config:
 				node.validate()
 				nlist.append(node)
 		return nlist
-
-	def __getDefaultCoreGroup(self):
-		clist=[]
-		coreGroups=Util.wslist(AdminConfig.list("CoreGroup"))
-		for c in coreGroups:
-			name=AdminConfig.showAttribute(c, 'name')
-			if name=="DefaultCoreGroup":
-				coreGroup=CoreGroup()
-				coreGroup.setParent(self.getCell())
-				coreGroup.setName(name)
-				coreGroup.validate()
-				clist.append(coreGroup)
-		return clist
 
 #############################################################################
 # Operations
