@@ -1279,13 +1279,15 @@ class Server(WASConfig, ManagementScopedWASConfig):
 				serverStat=HeapStat()
 				serverStat.setCriticalThreshold(self.getHeapCriticalThreshold())
 				serverStat.setWarningThreshold(self.getHeapWarningThreshold())
-				serverStat.setStatus([s])
-				stats.append(serverStat)
+		                if not(serverStat.criticalThreshold<0 or serverStat.warningThreshold<0):
+					serverStat.setStatus([s])
+					stats.append(serverStat)
 				serverStat=CPUStat()
 				serverStat.setCriticalThreshold(self.getCpuCriticalThreshold())
 				serverStat.setWarningThreshold(self.getCpuWarningThreshold())
-				serverStat.setStatus([s])
-				stats.append(serverStat)
+                                if not(serverStat.criticalThreshold<0 or serverStat.warningThreshold<0):
+					serverStat.setStatus([s])
+					stats.append(serverStat)
 
 			serverO=AdminControl.makeObjectName(self.getMbean())
 			substats=AdminControl.invoke_jmx(perfO,'getStatsObject',[serverO,java.lang.Boolean('true')],['javax.management.ObjectName','java.lang.Boolean'])
@@ -1296,21 +1298,24 @@ class Server(WASConfig, ManagementScopedWASConfig):
 					webContainerStat=WebContainerActiveStat()
 					webContainerStat.setCriticalThreshold(self.getWebContainerActiveCriticalThreshold())
 					webContainerStat.setWarningThreshold(self.getWebContainerActiveWarningThreshold())
-					webContainerStat.setStatus([s])
-					stats.append(webContainerStat)
+	                                if not(webContainerStat.criticalThreshold<0 or webContainerStat.warningThreshold<0):
+						webContainerStat.setStatus([s])
+						stats.append(webContainerStat)
 					webContainerStat=WebContainerConcurrentHungThreadCount()
 					webContainerStat.setCriticalThreshold(self.getWebContainerHungThreadCriticalThreshold())
 					webContainerStat.setWarningThreshold(self.getWebContainerHungThreadWarningThreshold())
-					webContainerStat.setStatus([s])
-					stats.append(webContainerStat)
+                                        if not(webContainerStat.criticalThreshold<0 or webContainerStat.warningThreshold<0):
+						webContainerStat.setStatus([s])
+						stats.append(webContainerStat)
 				
 				s=substats.getStats('servletSessionsModule')
 				if s is not None:
 					sessionStat=LiveSessionStat()
 					sessionStat.setCriticalThreshold(self.getLiveSessionsCriticalThreshold())
 					sessionStat.setWarningThreshold(self.getLiveSessionsWarningThreshold())
-					sessionStat.setStatus([s])
-					stats.append(sessionStat)
+                                        if not(sessionStat.criticalThreshold<0 or sessionStat.warningThreshold<0):
+						sessionStat.setStatus([s])
+						stats.append(sessionStat)
 		return stats
 			#WASConfig.getStatistics(self)
 
