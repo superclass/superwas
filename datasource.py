@@ -345,18 +345,21 @@ class DataSource(WASConfig):
 							dataSourceStat=DataSourceUsageStat()
 							dataSourceStat.setCriticalThreshold(self.getUsageCriticalThreshold())
 							dataSourceStat.setWarningThreshold(self.getUsageWarningThreshold())
-							dataSourceStat.setStatus([i])
-							stats.append(dataSourceStat)
+		                                        if not(dataSourceStat.criticalThreshold<0 or dataSourceStat.warningThreshold<0):
+								dataSourceStat.setStatus([i])
+								stats.append(dataSourceStat)
 							dataSourceStat=DataSourceWaitStat()
 							dataSourceStat.setCriticalThreshold(self.getWaitTimeCriticalThreshold())
 							dataSourceStat.setWarningThreshold(self.getWaitTimeCriticalThreshold())
-							dataSourceStat.setStatus([i])
-                                                        stats.append(dataSourceStat)
+                                                        if not(dataSourceStat.criticalThreshold<0 or dataSourceStat.warningThreshold<0):
+								dataSourceStat.setStatus([i])
+        	                                                stats.append(dataSourceStat)
 							dataSourceStat=DataSourceUsetimeStat()
                                                         dataSourceStat.setCriticalThreshold(self.getUseTimeCriticalThreshold())
                                                         dataSourceStat.setWarningThreshold(self.getUseTimeCriticalThreshold())
-							dataSourceStat.setStatus([i])
-							stats.append(dataSourceStat)
+                                                        if not(dataSourceStat.criticalThreshold<0 or dataSourceStat.warningThreshold<0):
+								dataSourceStat.setStatus([i])
+								stats.append(dataSourceStat)
 		return stats
 		#WASConfig.getStatistics(self)
 
