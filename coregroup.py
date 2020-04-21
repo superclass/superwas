@@ -62,8 +62,7 @@ class CoreGroup(WASConfig):
 		if self.wasDefault=="false":
 			self.configID=AdminTask.createCoreGroup('[-coreGroupName %s]' % self.getName())
 			self.logCreate()
-		if self.configID!="":
-			AdminConfig.modify(self.configID,Util.dictToList(self.man_attributes))
-			AdminConfig.modify(self.configID,Util.dictToList(self.opt_attributes))
-			logger.info("Successfully set the properties on coregroup : %s" % self.getName())
-			
+			if self.configID!="":
+				AdminConfig.modify(self.configID,Util.dictToList(self.man_attributes))
+				AdminConfig.modify(self.configID,Util.dictToList(self.opt_attributes))
+				logger.info("Successfully set the properties on coregroup : %s" % self.getName())
